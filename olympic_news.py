@@ -27,8 +27,7 @@ def get_newsnow():
         return []
 
 def get_chosun_api():
-    """조선일보 API 내신 상위 10개 기사 추출 (kini 님이 찾으신 API 활용)"""
-    # offset=0으로 설정하여 가장 최신 뉴스 10개를 가져옵니다.
+    """조선일보 API 내신 상위 10개 추출 (URL 생성 로직 보완)"""
     API_URL = "https://www.chosun.com/pf/api/v3/content/fetch/story-feed?query=%7B%22excludeContentTypes%22%3A%22gallery%2C%20video%22%2C%22excludeSections%22%3A%22%2Fsports%2Fsports_photo%22%2C%22includeContentTypes%22%3A%22story%22%2C%22includeSections%22%3A%22%2Fsports%2Fsports_special%22%2C%22offset%22%3A0%2C%22size%22%3A10%7D&_website=chosun"
     headers = {'User-Agent': 'Mozilla/5.0'}
     try:
@@ -38,15 +37,23 @@ def get_chosun_api():
         news = []
         for a in articles:
             title = a.get('headlines', {}).get('basic', '제목 없음')
-            url = a.get('website_url', '')
-            if not url.startswith('http'):
-                url = "https://www.chosun.com" + url
-            news.append((title, url))
+            
+            # 1. 우선적으로 canonical_url 확인, 없으면 website_url 사용
+            url_path = a.get('canonical_url') or a.get('website_url', '')
+            
+            # 2. URL이 도메인을 포함하지 않는 경우에만 도메인 결합
+            if url_path and not url_path.startswith('http'):
+                url = "https://www.chosun.com" + url_path
+            else:
+                url = url_path
+                
+            if url:
+                news.append((title, url))
         return news
     except Exception as e:
         print(f"조선일보 API 에러: {e}")
         return []
-
+        
 def send_telegram(message):
     """텔레그램 메시지 전송"""
     if not message: return
