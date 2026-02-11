@@ -2,11 +2,11 @@ name: Olympic News Alert Bot
 
 on:
   schedule:
-    # KST 07:00 ~ 08:00 (UTC 22:00 ~ 23:00)
+    # 한국 시간(KST) 기준 오전 07:00 ~ 오전 08:59 (UTC 22:00 ~ 23:59)
     - cron: '0 22-23 * * *'
-    # KST 09:00 ~ 20:00 (UTC 00:00 ~ 11:00)
-    - cron: '0 0-11 * * *'
-  workflow_dispatch: # 필요할 때 수동 실행 가능
+    # 한국 시간(KST) 기준 오전 09:00 ~ 오후 10:59 (UTC 00:00 ~ 13:59)
+    - cron: '0 0-13 * * *'
+  workflow_dispatch: # 수동 실행 버튼 활성화
 
 jobs:
   run-bot:
