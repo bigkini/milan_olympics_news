@@ -1,0 +1,36 @@
+name: Olympic News Bot
+
+on:
+  schedule:
+    - cron: '0 22-23 * * *' # KST 07:00-08:00
+    - cron: '0 0-11 * * *'  # KST 09:00-20:00
+  workflow_dispatch: # 수동 실행용
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4
+
+      - name: Run script
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          CHAT_ID: ${{ secrets.CHAT_ID }}
+        run: python olympic_news.py
+
+      - name: Commit changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add last_titles.txt
+          git commit -m "Update news history" || echo "No changes to commit"
+          git push
